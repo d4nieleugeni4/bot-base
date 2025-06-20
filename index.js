@@ -1,4 +1,3 @@
-
 const path = require("path");
 const {
   default: makeWASocket,
@@ -8,8 +7,9 @@ const {
 } = require("@whiskeysockets/baileys");
 const readline = require("readline");
 const pino = require("pino");
-const { handleCommands } = require("./handleCommands.js");
-const { participantsUpdate } = require("./participantsUpdate.js");
+const { handleCommands } = require("./core/handleCommands.js");
+const { participantsUpdate } = require("./core/participantsUpdate.js");
+const config = require("./config/bot.config.js");
 
 const question = (string) => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -31,10 +31,11 @@ exports.connect = async () => {
     version,
     logger: pino({ level: "silent" }),
     auth: state,
-    browser: ["Ubuntu", "Chrome", "20.0.04"],
+    browser: ["Bot WA", "Chrome", "1.0.0"],
     markOnlineOnConnect: true,
   });
 
+  // Solicita pareamento se for a primeira vez
   if (!sock.authState.creds.registered) {
     let phoneNumber = await question("Informe o seu número de telefone: ");
     phoneNumber = phoneNumber.replace(/[^0-9]/g, "");
@@ -44,7 +45,7 @@ exports.connect = async () => {
     }
 
     const code = await sock.requestPairingCode(phoneNumber);
-    console.log("Código de pareamento:", code);
+    console.log("🔑 Código de pareamento:", code);
   }
 
   sock.ev.on("connection.update", (update) => {
@@ -52,21 +53,28 @@ exports.connect = async () => {
 
     if (connection === "close") {
       const shouldReconnect =
-        lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log("Conexão fechada devido ao erro:", lastDisconnect.error, "Reconectando...", shouldReconnect);
+        lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+
+      console.log("⚠️ Conexão fechada. Tentando reconectar...", shouldReconnect);
 
       if (shouldReconnect) {
         this.connect();
       }
     } else if (connection === "open") {
       console.log("✅ Bot conectado com sucesso!");
+      console.log(`👑 Dono: ${config.dono}`);
+      console.log(`🤖 Bot: ${config.bot}`);
+      console.log(`📍 Prefixo: ${config.prefixo}`);
+      console.log(`📦 Versão: ${config.versao}`);
     }
   });
 
   sock.ev.on("creds.update", saveCreds);
 
+  // Inicializa módulos principais
   handleCommands(sock);
   participantsUpdate(sock);
+
   return sock;
 };
 
