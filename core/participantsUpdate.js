@@ -1,4 +1,3 @@
-
 module.exports.participantsUpdate = (sock) => {
-  // Placeholder caso queira usar futuramente
+  // Lógica de boas-vindas ou registro de grupo
 };
