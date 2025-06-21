@@ -3,10 +3,19 @@ const path = require("path");
 const comandosPath = path.join(__dirname, "..", "comandos");
 const comandos = [];
 
-fs.readdirSync(comandosPath).forEach(file => {
-  const cmd = require(path.join(comandosPath, file));
-  comandos.push(cmd);
-});
+function carregarComandos(dir) {
+  fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      carregarComandos(fullPath);
+    } else if (entry.isFile() && entry.name.endsWith(".js")) {
+      const cmd = require(fullPath);
+      comandos.push(cmd);
+    }
+  });
+}
+
+carregarComandos(comandosPath);
 
 const { prefixo } = require("../config/bot.config");
 
