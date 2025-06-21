@@ -1,10 +1,12 @@
+const { prefixo } = require("../../config/config");
+
 module.exports = {
   comando: "rebaixar",
   exec: async (sock, m) => {
     const from = m.key.remoteJid;
 
     if (!from.endsWith("@g.us")) {
-      return sock.sendMessage(from, { text: "❌ Esse comando só pode ser usado em grupos!" });
+      return sock.sendMessage(from, { text: `❌ Esse comando só pode ser usado em grupos!\nEx: ${prefixo}rebaixar @usuario` });
     }
 
     const groupMetadata = await sock.groupMetadata(from);
@@ -17,7 +19,7 @@ module.exports = {
 
     const mentioned = m.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
     if (!mentioned) {
-      return sock.sendMessage(from, { text: "📌 Marque alguém para rebaixar!" });
+      return sock.sendMessage(from, { text: `📌 Marque alguém para rebaixar!\nEx: ${prefixo}rebaixar @usuario` });
     }
 
     await sock.groupParticipantsUpdate(from, [mentioned], "demote");
