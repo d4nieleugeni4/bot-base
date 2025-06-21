@@ -17,7 +17,7 @@ function carregarComandos(dir) {
 
 carregarComandos(comandosPath);
 
-const { prefixo } = require("../config/bot.config");
+const { prefixo } = require("../config/config");
 
 module.exports.handleCommands = (sock) => {
   sock.ev.on("messages.upsert", async (msg) => {
