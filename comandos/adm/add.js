@@ -1,10 +1,12 @@
+const { prefixo } = require("../../config/config");
+
 module.exports = {
   comando: "add",
   exec: async (sock, m) => {
     const from = m.key.remoteJid;
 
     if (!from.endsWith("@g.us")) {
-      return sock.sendMessage(from, { text: "❌ Esse comando só pode ser usado em grupos!" });
+      return sock.sendMessage(from, { text: `❌ Esse comando só pode ser usado em grupos!\nUse: ${prefixo}add <numero>` });
     }
 
     const groupMetadata = await sock.groupMetadata(from);
@@ -18,7 +20,7 @@ module.exports = {
     const text = m.message.conversation || m.message.extendedTextMessage?.text;
     const number = text.split(" ")[1]?.replace(/\D/g, "");
 
-    if (!number) return sock.sendMessage(from, { text: "📲 Informe um número para adicionar!" });
+    if (!number) return sock.sendMessage(from, { text: `📲 Informe um número para adicionar!\nEx: ${prefixo}add 559999999999` });
 
     await sock.groupParticipantsUpdate(from, [`${number}@s.whatsapp.net`], "add");
     await sock.sendMessage(from, { text: `✅ ${number} foi adicionado ao grupo.` });
