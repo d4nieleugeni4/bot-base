@@ -9,7 +9,7 @@ const readline = require("readline");
 const pino = require("pino");
 const { handleCommands } = require("./core/handleCommands.js");
 const { participantsUpdate } = require("./core/participantsUpdate.js");
-const config = require("./config/bot.config.js");
+const config = require("./config/config.js");
 
 const question = (string) => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
