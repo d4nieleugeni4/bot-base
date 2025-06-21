@@ -9,7 +9,7 @@ const readline = require("readline");
 const pino = require("pino");
 const { handleCommands } = require("./core/handleCommands.js");
 const { participantsUpdate } = require("./core/participantsUpdate.js");
-const config = require("./config/config.js");
+const config = require("./config/config.js"); // Prefixo e dono puxado daqui
 
 const question = (string) => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -19,7 +19,7 @@ const question = (string) => {
   }));
 };
 
-exports.connect = async () => {
+const connect = async () => {
   const { state, saveCreds } = await useMultiFileAuthState(
     path.resolve(__dirname, ".", "assets", "auth", "creds")
   );
@@ -35,13 +35,12 @@ exports.connect = async () => {
     markOnlineOnConnect: true,
   });
 
-  // Solicita pareamento se for a primeira vez
   if (!sock.authState.creds.registered) {
-    let phoneNumber = await question("Informe o seu número de telefone: ");
+    let phoneNumber = await question("📱 Informe o seu número de telefone (somente números): ");
     phoneNumber = phoneNumber.replace(/[^0-9]/g, "");
 
     if (!phoneNumber) {
-      throw new Error("Número de telefone inválido!");
+      throw new Error("❌ Número de telefone inválido!");
     }
 
     const code = await sock.requestPairingCode(phoneNumber);
@@ -58,7 +57,7 @@ exports.connect = async () => {
       console.log("⚠️ Conexão fechada. Tentando reconectar...", shouldReconnect);
 
       if (shouldReconnect) {
-        this.connect();
+        connect(); // reconexão automática
       }
     } else if (connection === "open") {
       console.log("✅ Bot conectado com sucesso!");
@@ -71,11 +70,9 @@ exports.connect = async () => {
 
   sock.ev.on("creds.update", saveCreds);
 
-  // Inicializa módulos principais
+  // Inicia comandos e eventos
   handleCommands(sock);
   participantsUpdate(sock);
-
-  return sock;
 };
 
-this.connect();
+connect(); // 🔁 chama a função principal diretamente
